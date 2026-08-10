@@ -399,6 +399,15 @@ if [ -e /etc/os-release ]; then
     fi
 fi
 
+# OVS is installed after the initial bf-release installation in the DPU image
+# build.  The service setup above therefore cannot find its unit on the first
+# install, and is skipped on the subsequent bf-release reinstall ($1 != 1).
+# Enable it outside the initial-install guard once its unit is available.
+if (systemctl list-unit-files 2>&1 | grep -w '^openvswitch.service'); then
+    systemctl unmask openvswitch.service || true
+    systemctl enable openvswitch.service || true
+fi
+
 %files
 /etc/mlnx-release
 
